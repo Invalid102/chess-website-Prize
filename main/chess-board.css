@@ -5,7 +5,7 @@
     width: 500px;
 }
 
-.game-container{
+#game-container{
     size: 100%;
     margin: auto;
 }

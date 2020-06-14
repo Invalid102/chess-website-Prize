@@ -12,10 +12,11 @@ $(document).ready(function() {
         });
     });
 
-    player_colour = "white";
     config = {
         player_colour: "white",
-        engine: false
+        engine: false,
+        game_container: 'game-container',
+        size: "600"
     };
     board_controller(config);
 

@@ -1,12 +1,14 @@
 function board_controller(config) {
   game = new Chess();
-  player_colour = config.player_colour
   var board = null
   var whiteSquare = '#f0d9b5'
   var blackSquare = '#b58863'
   var audio_move_piece = new Audio('resources/sound/move_piece.wav')
   var audio_take_piece = new Audio('resources/sound/take_piece.wav')
-  var $status = $('#status')
+  $('#'+config.game_container).append('<div id="chess-board" style="width: '+config.size+'px"></div>\
+                                      <label>Status:</label>\
+                                      <div id="status"></div>'); 
+  var $status = $('#status');
 
   function updateStatus () {
     var status = ''
@@ -57,13 +59,37 @@ function board_controller(config) {
     if (game.game_over()) return false
 
     // check which turn
-    if ((game.turn() === 'w' && (piece.search(/^b/) !== -1 || player_colour == "black")) ||
-        (game.turn() === 'b' && (piece.search(/^w/) !== -1 || player_colour == "white"))) {
+    if ((game.turn() === 'w' && (piece.search(/^b/) !== -1 || config.player_colour == "black")) ||
+        (game.turn() === 'b' && (piece.search(/^w/) !== -1 || config.player_colour == "white"))) {
       return false
     }
   }
 
   function move_played(source, target, piece_on_target){
+    /* TODO
+    if (config.time) {
+      old_time = time.config.lastMoveDate;
+      config.lastMoveDate = Date.now();
+      if (config.time.activeColour == "white"){
+        config.time.activeColour = "black";
+        config.time.white -= config.lastMoveDate - old_time;
+        if (config.time.white > 0){
+          config.time.white += config.time.white_increment;
+        } else {
+
+        }
+      } 
+      else {
+        config.time.activeColour = "white";
+        config.time.black -= config.lastMoveDate - old_time;
+        if (config.time.black > 0){
+          config.time.black += config.time.white_increment;
+        } else {
+          
+        }
+      }
+    }
+    */
 
     removeHighlightedSquares()
     updateStatus()
@@ -109,7 +135,7 @@ function board_controller(config) {
     if (moves.length === 0) return
 
     // highlight the possible squares for this piece
-    if ((game.turn() === 'w' && player_colour == "white") || (game.turn() === 'b' && player_colour == "black")) {
+    if ((game.turn() === 'w' && config.player_colour == "white") || (game.turn() === 'b' && config.player_colour == "black")) {
 
       for (var i = 0; i < moves.length; i++) {
       highlightSquare(moves[i].to)
@@ -123,6 +149,36 @@ function board_controller(config) {
 
   function onSnapEnd () {
     board.position(game.fen())
+  }
+
+  function reset_board(new_config=null){
+    game.reset();
+    if (new_config != null){
+      config = new_config;
+    }
+    var gui_board_config = {
+      draggable: true,
+      position: 'start',
+      orientation: config.player_colour,
+      onDragStart: onDragStart,
+      onDrop: onDrop,
+      onMouseoutSquare: onMouseoutSquare,
+      onMouseoverSquare: onMouseoverSquare,
+      onSnapEnd: onSnapEnd
+    }
+    board = Chessboard('chess-board', gui_board_config)
+    updateStatus()
+    board.position(game.fen())
+
+    if (config.engine == true && config.player_colour == "black"){
+      engine_move();
+    }
+    /*
+    if (config.time){
+      config.time.lastMoveDate = Date.now();
+      config.time.activeColour = "white";
+    }
+    */
   }
 
   if (config.engine == true){
@@ -140,10 +196,16 @@ function board_controller(config) {
       var match = line.match(/^bestmove ([a-h][1-8])([a-h][1-8])([qrbn])?/);
       /// Did the AI move?
       if(match) {
+        var piece_on_target = false;
+        if (game.get(match[2]) != null){ // piece on target square
+          piece_on_target = true
+        }
+
           game.move({from: match[1], to: match[2], promotion: match[3]});
           board.position(game.fen());
-          move_played(match[1], match[2])
-      } 
+          move_played(match[1], match[2], piece_on_target);
+      }
+    } 
   }
 
   function engine_move(){
@@ -160,18 +222,7 @@ function board_controller(config) {
     engine.postMessage('go movetime 1500');
   }
 
-  
-  }
 
-  var gui_board_config = {
-    draggable: true,
-    position: 'start',
-    onDragStart: onDragStart,
-    onDrop: onDrop,
-    onMouseoutSquare: onMouseoutSquare,
-    onMouseoverSquare: onMouseoverSquare,
-    onSnapEnd: onSnapEnd
-  }
-  board = Chessboard('chess-board', gui_board_config)
-  updateStatus()
+  reset_board()
+  return reset_board;
 }

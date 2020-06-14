@@ -584,7 +584,7 @@
    // WREF added 
    if (!config.hasOwnProperty('pieceTheme') ||
         (!isString(config.pieceTheme) && !isFunction(config.pieceTheme))) {
-      config.pieceTheme = 'resources/images/{piece}.png'
+      config.pieceTheme = 'resources/images/{piece}.svg'
     }
 
     // animation speeds

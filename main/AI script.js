@@ -11,11 +11,20 @@ $(document).ready(function() {
             location.href = "index.html";
         });
     });
+    
 
-    player_colour = "white";
     config = {
-        player_colour: "white",
-        engine: true
+        player_colour: "black",
+        engine: true,
+        game_container: 'game-container',
+        size: "600"
     };
-    board_controller(config);
+    new_game = board_controller(config);
+
+    $("#new-game").click(function(event){
+        console.log("resetting the board");
+        new_game();
+    });
+
+    
 });
