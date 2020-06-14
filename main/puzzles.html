@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="chess-board.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="homepage script.js"></script>
+    <script src="GUI-chessboard-1.0.0.js"></script>
+    <script src="LOGIC-chessboard.js"></script>
+    <link rel="stylesheet" href="GUI-chessboard-1.0.0.css">
+    <script src="chess-board controller.js"></script>
 </head>
 <body>
     <header class="main-header">
@@ -20,9 +24,13 @@
             <div class="game-container">
                 <h1>Puzzles</h1>
                 <button id="logout-button">Logout</button>
-                <div class="chess-board">
-        
-                </div>
+                <div id="chess-board" style="width: 400px"></div>
+                <label>Status:</label>
+                <div id="status"></div>
+                <label>FEN:</label>
+                <div id="fen"></div>
+                <label>PGN:</label>
+                <div id="pgn"></div>
             </div>
         </div>
         <div id="left" class="column"></div>
