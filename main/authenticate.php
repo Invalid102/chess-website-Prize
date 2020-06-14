@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ERROR);
 
-// add mysql details here
+// add mysql server details here
 $link = mysqli_connect('SERVER', 'USERNAME', 'PASSWORD', 'DB_NAME');
 if (!$link) {
 	die('Could not connect: ');
