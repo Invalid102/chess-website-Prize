@@ -15,8 +15,7 @@ $(document).ready(function() {
     player_colour = "white";
     config = {
         player_colour: "white",
-        engine: false
+        engine: true
     };
     board_controller(config);
-
 });

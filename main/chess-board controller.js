@@ -1,7 +1,7 @@
-$(document).ready(function() {
+function board_controller(config) {
+  game = new Chess();
+  player_colour = config.player_colour
   var board = null
-  var game = new Chess()
-
   var whiteSquare = '#f0d9b5'
   var blackSquare = '#b58863'
   var audio_move_piece = new Audio('resources/sound/move_piece.wav')
@@ -19,14 +19,11 @@ $(document).ready(function() {
     if (game.in_checkmate()) {
       status = 'Game over, ' + moveColor + ' is in checkmate.'
     }
-  
     else if (game.in_draw()) {
       status = 'Game over, drawn position'
     }
-  
     else {
       status = moveColor + ' to move'
-  
       if (game.in_check()) {
         status += ', ' + moveColor + ' is in check'
       }
@@ -60,20 +57,31 @@ $(document).ready(function() {
     if (game.game_over()) return false
 
     // check which turn
-    if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-        (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+    if ((game.turn() === 'w' && (piece.search(/^b/) !== -1 || player_colour == "black")) ||
+        (game.turn() === 'b' && (piece.search(/^w/) !== -1 || player_colour == "white"))) {
       return false
     }
   }
 
-  function onDrop (source, target) {
+  function move_played(source, target, piece_on_target){
+
     removeHighlightedSquares()
+    updateStatus()
+    if (piece_on_target){ // piece on target square
+      audio_take_piece.play();
+    }
+    else {
+      audio_move_piece.play();
+    }
+  }
+
+  function onDrop (source, target) {
 
     var piece_on_target = false;
     if (game.get(target) != null){ // piece on target square
       piece_on_target = true
     }
-
+    
     // see if the move is legal
     var move = game.move({
       from: source,
@@ -84,12 +92,10 @@ $(document).ready(function() {
     // illegal move
     if (move === null) return 'snapback'
 
-    updateStatus()
-    if (piece_on_target){ // piece on target square
-      audio_take_piece.play();
-    }
-    else {
-      audio_move_piece.play();
+    move_played(source, target, piece_on_target);
+
+    if(config.engine == true){
+      engine_move();
     }
   }
 
@@ -103,8 +109,11 @@ $(document).ready(function() {
     if (moves.length === 0) return
 
     // highlight the possible squares for this piece
-    for (var i = 0; i < moves.length; i++) {
+    if ((game.turn() === 'w' && player_colour == "white") || (game.turn() === 'b' && player_colour == "black")) {
+
+      for (var i = 0; i < moves.length; i++) {
       highlightSquare(moves[i].to)
+      }
     }
   }
 
@@ -116,7 +125,45 @@ $(document).ready(function() {
     board.position(game.fen())
   }
 
-  var config = {
+  if (config.engine == true){
+    var engine = new Worker('stockfish.js');
+
+    engine.onmessage = function(event) {
+      var line;
+      
+      if (event && typeof event === "object") {
+          line = event.data;
+      } else {
+          line = event;
+      }
+  
+      var match = line.match(/^bestmove ([a-h][1-8])([a-h][1-8])([qrbn])?/);
+      /// Did the AI move?
+      if(match) {
+          game.move({from: match[1], to: match[2], promotion: match[3]});
+          board.position(game.fen());
+          move_played(match[1], match[2])
+      } 
+  }
+
+  function engine_move(){
+    //get previous moves
+    var moves = '';
+    var history = game.history({verbose: true});
+    
+    for(var i = 0; i < history.length; ++i) {
+        var move = history[i];
+        moves += ' ' + move.from + move.to + (move.promotion ? move.promotion : '');
+    }
+
+    engine.postMessage('position startpos moves' + moves);
+    engine.postMessage('go movetime 1500');
+  }
+
+  
+  }
+
+  var gui_board_config = {
     draggable: true,
     position: 'start',
     onDragStart: onDragStart,
@@ -125,6 +172,6 @@ $(document).ready(function() {
     onMouseoverSquare: onMouseoverSquare,
     onSnapEnd: onSnapEnd
   }
-  board = Chessboard('chess-board', config)
+  board = Chessboard('chess-board', gui_board_config)
   updateStatus()
-});
+}
