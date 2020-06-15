@@ -1,7 +1,7 @@
 //redirect if user already logged in
 $.post("authenticate.php", {}, function(data, status){
     if (data == "Login Success"){
-        location.href = "homepage.html";
+        location.href = "AI.html";
     }
 });
 
@@ -19,7 +19,7 @@ $(document).ready(function() {
 
             $.post("authenticate.php", inputs_dict, function(data, status){
                 if (data == "Login Success"){
-                    location.href = "homepage.html";
+                    location.href = "AI.html";
                 }
             });
         });

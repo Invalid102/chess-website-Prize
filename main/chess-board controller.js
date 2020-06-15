@@ -66,31 +66,6 @@ function board_controller(config) {
   }
 
   function move_played(source, target, piece_on_target){
-    /* TODO
-    if (config.time) {
-      old_time = time.config.lastMoveDate;
-      config.lastMoveDate = Date.now();
-      if (config.time.activeColour == "white"){
-        config.time.activeColour = "black";
-        config.time.white -= config.lastMoveDate - old_time;
-        if (config.time.white > 0){
-          config.time.white += config.time.white_increment;
-        } else {
-
-        }
-      } 
-      else {
-        config.time.activeColour = "white";
-        config.time.black -= config.lastMoveDate - old_time;
-        if (config.time.black > 0){
-          config.time.black += config.time.white_increment;
-        } else {
-          
-        }
-      }
-    }
-    */
-
     removeHighlightedSquares()
     updateStatus()
     if (piece_on_target){ // piece on target square
@@ -173,12 +148,7 @@ function board_controller(config) {
     if (config.engine == true && config.player_colour == "black"){
       engine_move();
     }
-    /*
-    if (config.time){
-      config.time.lastMoveDate = Date.now();
-      config.time.activeColour = "white";
-    }
-    */
+
   }
 
   if (config.engine == true){

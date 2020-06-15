@@ -1,7 +1,7 @@
 //redirect if user already logged in
 $.post("authenticate.php", {}, function(data, status){
     if (data == "Login Failure"){
-        location.href = "login.html";
+        location.href = "index.html";
     }
 });
 
